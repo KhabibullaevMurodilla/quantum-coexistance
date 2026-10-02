@@ -9,7 +9,7 @@
     {
       "scheduler": "fifo",
       "mean_total_utility": 26.75681814781517,
-      "mean_total_rate": 264.27884714356014,
+      "mean_total_rate": 264.2788471435602,
       "mean_jain_fairness": 0.36590415509464524,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
@@ -17,24 +17,24 @@
     {
       "scheduler": "greedy",
       "mean_total_utility": 26.76402540561694,
-      "mean_total_rate": 264.27884714356014,
+      "mean_total_rate": 264.2788471435602,
       "mean_jain_fairness": 0.3675272279228795,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
     },
     {
       "scheduler": "proportional_fair",
-      "mean_total_utility": 27.770958462372562,
-      "mean_total_rate": 264.27884172792466,
-      "mean_jain_fairness": 0.3995290582321006,
+      "mean_total_utility": 27.770954428351626,
+      "mean_total_rate": 264.2787986950342,
+      "mean_jain_fairness": 0.39952889437663774,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
     },
     {
       "scheduler": "optimal",
-      "mean_total_utility": 27.788861435650595,
-      "mean_total_rate": 264.2788523926536,
-      "mean_jain_fairness": 0.3977035421206028,
+      "mean_total_utility": 27.788862761734247,
+      "mean_total_rate": 264.278847683741,
+      "mean_jain_fairness": 0.3977035930517876,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
     },
@@ -48,7 +48,7 @@
     },
     {
       "scheduler": "best_response",
-      "mean_total_utility": 27.418270911496403,
+      "mean_total_utility": 27.4182709114964,
       "mean_total_rate": 263.25186816665183,
       "mean_jain_fairness": 0.37455716678579465,
       "mean_feasible_sessions": 13.15,
@@ -57,7 +57,7 @@
     {
       "scheduler": "learned",
       "mean_total_utility": 26.76402540561694,
-      "mean_total_rate": 264.27884714356014,
+      "mean_total_rate": 264.2788471435602,
       "mean_jain_fairness": 0.3675272279228795,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
@@ -65,8 +65,8 @@
   ],
   "price_of_decentralization": {
     "optimal": 0.0,
-    "primal_dual": 0.03782193795487663,
-    "best_response": 0.03903848863717944
+    "primal_dual": 0.03755355497895704,
+    "best_response": 0.04345068840926611
   },
   "coexistence_noise": {
     "classical_load": [
