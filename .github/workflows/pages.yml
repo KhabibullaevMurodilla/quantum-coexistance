@@ -1,0 +1,66 @@
+name: Build data + deploy GitHub Pages
+
+# Regenerates web/data.json from a fixed-size simulation (see
+# scripts/generate_site_data.py) and publishes web/ as a static site.
+# Mirrors the sibling Voyager-forecast project's pattern: one job, one
+# deploy step, nothing else able to race it -- whatever this run just
+# computed is exactly what's live.
+#
+# One-time repo setting this depends on: Settings -> Pages -> Source:
+# "GitHub Actions" (not "Deploy from a branch").
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 6 * * 1"   # weekly, Monday 06:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "scripts/generate_site_data.py"
+      - "web/index.html"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: pip install -e ".[dev]"
+
+      - name: Regenerate web/data.json
+        run: python scripts/generate_site_data.py
+
+      - name: Commit updated data (if it changed)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add web/data.json
+          git diff --cached --quiet || git commit -m "Refresh site data"
+          git push
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
