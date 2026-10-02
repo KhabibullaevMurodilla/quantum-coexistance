@@ -144,7 +144,7 @@ do aren't the same thing:
   and weekly on a schedule. It shows one fixed snapshot -- scheduler
   comparison, price of decentralization, coexistence noise, the learned
   policy's weights -- computed by `scripts/generate_site_data.py`. No
-  backend, no server cost, works for anyone with the link.
+  backend, no server cost, works for anyone with the link. <https://khabibullaevmurodilla.github.io/quantum-coexistance/>
   **One-time setup**: in the repo's Settings -> Pages, set Source to
   "GitHub Actions" (not "Deploy from a branch"), then run the
   "Build data + deploy GitHub Pages" workflow once (Actions tab ->
