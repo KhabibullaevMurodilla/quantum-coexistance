@@ -157,4 +157,4 @@ do aren't the same thing:
   for it: go to <https://share.streamlit.io>, sign in, "New app", point
   it at this repo and `dashboard/app.py` on the `main` branch. Streamlit
   Cloud installs from the root `requirements.txt` already in this repo.
-  It redeploys automatically on every push to `main`.
+  It redeploys automatically on every push to `main`. <https://quantum-coexistance-jfeugpexj7lh9gavdodq4x.streamlit.app/>
