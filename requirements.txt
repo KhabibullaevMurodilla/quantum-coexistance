@@ -1,0 +1,6 @@
+# For Streamlit Community Cloud, which installs from a root-level
+# requirements.txt rather than resolving pyproject.toml's package itself.
+# Keep this in sync with pyproject.toml's [project.dependencies] +
+# the "dashboard" extra.
+-e .
+streamlit>=1.30

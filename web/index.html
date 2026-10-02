@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quantum Coexistence Scheduler</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0b0f14;
+    --panel: #121820;
+    --panel-border: #1f2a36;
+    --text: #e6edf3;
+    --muted: #8b98a5;
+    --accent: #4fd1c5;
+    --accent2: #f6ad55;
+    --accent3: #fc8181;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px 16px 64px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; margin-bottom: 4px; }
+  .lede { color: var(--muted); margin-top: 0; line-height: 1.5; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+  }
+  .panel h2 { margin-top: 0; font-size: 1.1rem; }
+  .panel p.note { color: var(--muted); font-size: 0.9rem; }
+  canvas { max-height: 320px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--panel-border); }
+  th { color: var(--muted); font-weight: 500; }
+  .pill-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .pill { background: #182230; border: 1px solid var(--panel-border); border-radius: 999px; padding: 6px 12px; font-size: 0.85rem; }
+  .weights-bar { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .weights-bar .row { display: grid; grid-template-columns: 140px 1fr 50px; align-items: center; gap: 8px; font-size: 0.85rem; }
+  .weights-bar .track { background: #1a2430; border-radius: 4px; height: 10px; position: relative; overflow: hidden; }
+  .weights-bar .fill { position: absolute; top: 0; bottom: 0; }
+  a { color: var(--accent); }
+  footer { color: var(--muted); font-size: 0.8rem; text-align: center; margin-top: 40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Quantum Coexistence Scheduler</h1>
+  <p class="lede">
+    A static snapshot of a network-utility-maximization testbed for scheduling entanglement
+    distribution on fiber shared with classical traffic. Numbers below come from one fixed,
+    modest-sized simulation, regenerated on a schedule by GitHub Actions &mdash; for your own
+    scenarios, clone the repo this page is published from and run the
+    <code>scenarios/</code> scripts or the interactive Streamlit dashboard it ships with.
+  </p>
+  <div id="provenance" class="pill-row"></div>
+
+  <div class="panel">
+    <h2>Scheduler comparison</h2>
+    <p class="note">Mean total utility and Jain fairness across all seven scheduling policies, same topology and sessions.</p>
+    <canvas id="chartUtility"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Price of decentralization</h2>
+    <p class="note">Mean welfare lost relative to the centralized optimum &mdash; a coordinated distributed algorithm (primal_dual) vs. fully selfish play (best_response).</p>
+    <canvas id="chartGap"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Coexistence noise by propagation scheme</h2>
+    <p class="note">Effective Werner parameter delivered under the same classical traffic trace, co- vs. counter-propagating vs. time-interleaved.</p>
+    <canvas id="chartNoise"></canvas>
+  </div>
+
+  <div class="panel">
+    <h2>Learned scheduler &mdash; what it actually learned</h2>
+    <p class="note">A 6-weight linear priority rule, fit by random search, fully readable rather than an opaque policy.</p>
+    <div id="weightsBar" class="weights-bar"></div>
+  </div>
+
+  <footer id="errorBanner"></footer>
+</div>
+
+<script>
+try {
+  fetch('data.json')
+    .then(r => {
+      if (!r.ok) throw new Error('data.json request failed: HTTP ' + r.status);
+      return r.json();
+    })
+    .then(render)
+    .catch(err => showError(err));
+} catch (err) {
+  showError(err);
+}
+
+function showError(err) {
+  const banner = document.getElementById('errorBanner');
+  banner.style.cssText = 'background:#c4601f;color:#fff;padding:12px;border-radius:8px;text-align:left;';
+  const hint = window.location.protocol === 'file:'
+    ? 'This page was opened directly as a file — serve it over http(s) (e.g. GitHub Pages) so fetch() can load data.json.'
+    : 'Could not load or parse data.json next to this page.';
+  banner.textContent = hint + ' (' + err.message + ')';
+}
+
+function render(data) {
+  const g = data.generated_with || {};
+  document.getElementById('provenance').innerHTML = `
+    <span class="pill">${g.n_nodes || '?'} nodes</span>
+    <span class="pill">${g.n_sessions || '?'} sessions</span>
+    <span class="pill">${g.n_slots || '?'} time slots</span>
+    <span class="pill">clean w = ${g.clean_w || '?'}</span>
+  `;
+
+  if (typeof Chart === 'undefined') {
+    throw new Error('Chart.js failed to load (CDN request blocked, or the pinned version is no longer served)');
+  }
+
+  const palette = {
+    accent: '#4fd1c5', accent2: '#f6ad55', accent3: '#fc8181', muted: '#8b98a5',
+    grid: '#1f2a36', text: '#e6edf3',
+  };
+  Chart.defaults.color = palette.text;
+  Chart.defaults.borderColor = palette.grid;
+
+  const sc = data.scheduler_comparison;
+  new Chart(document.getElementById('chartUtility'), {
+    type: 'bar',
+    data: {
+      labels: sc.map(r => r.scheduler),
+      datasets: [
+        { label: 'Mean total utility', data: sc.map(r => r.mean_total_utility), backgroundColor: palette.accent, yAxisID: 'y' },
+        { label: 'Jain fairness', data: sc.map(r => r.mean_jain_fairness), backgroundColor: palette.accent2, yAxisID: 'y2', type: 'line', borderColor: palette.accent2 },
+      ],
+    },
+    options: {
+      scales: {
+        y: { position: 'left', title: { display: true, text: 'mean total utility' } },
+        y2: { position: 'right', min: 0, max: 1, title: { display: true, text: 'Jain fairness' }, grid: { drawOnChartArea: false } },
+      },
+    },
+  });
+
+  const gap = data.price_of_decentralization;
+  const gapLabels = Object.keys(gap);
+  new Chart(document.getElementById('chartGap'), {
+    type: 'bar',
+    data: {
+      labels: gapLabels,
+      datasets: [{ label: 'Welfare gap vs. optimal', data: gapLabels.map(k => gap[k] * 100), backgroundColor: [palette.accent, palette.accent2, palette.accent3] }],
+    },
+    options: { scales: { y: { title: { display: true, text: '% utility lost vs. optimal' } } } },
+  });
+
+  const noise = data.coexistence_noise;
+  const steps = noise.classical_load.map((_, i) => i);
+  new Chart(document.getElementById('chartNoise'), {
+    type: 'line',
+    data: {
+      labels: steps,
+      datasets: [
+        { label: 'co-propagating', data: noise.co, borderColor: palette.accent3, backgroundColor: 'transparent' },
+        { label: 'counter-propagating', data: noise.counter, borderColor: palette.accent, backgroundColor: 'transparent' },
+        { label: 'interleaved', data: noise.interleaved, borderColor: palette.accent2, backgroundColor: 'transparent' },
+      ],
+    },
+    options: {
+      scales: {
+        x: { title: { display: true, text: 'time slot' } },
+        y: { title: { display: true, text: 'effective Werner parameter (w)' } },
+      },
+    },
+  });
+
+  const weights = data.learned_weights;
+  const maxAbs = Math.max(...Object.values(weights).map(Math.abs), 0.01);
+  const bar = document.getElementById('weightsBar');
+  bar.innerHTML = Object.entries(weights).map(([name, value]) => {
+    const pct = Math.abs(value) / maxAbs * 50;
+    const left = value >= 0 ? 50 : 50 - pct;
+    const color = value >= 0 ? palette.accent : palette.accent3;
+    return `
+      <div class="row">
+        <div>${name}</div>
+        <div class="track"><div class="fill" style="left:${left}%;width:${pct}%;background:${color};"></div></div>
+        <div style="text-align:right;">${value.toFixed(2)}</div>
+      </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
