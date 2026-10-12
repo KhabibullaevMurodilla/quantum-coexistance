@@ -65,8 +65,8 @@
   ],
   "price_of_decentralization": {
     "optimal": 0.0,
-    "primal_dual": 0.03782193795487659,
-    "best_response": 0.03903848863717943
+    "primal_dual": 0.03755350040284917,
+    "best_response": 0.04345063543988545
   },
   "coexistence_noise": {
     "classical_load": [
