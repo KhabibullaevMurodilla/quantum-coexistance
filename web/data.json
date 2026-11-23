@@ -24,17 +24,17 @@
     },
     {
       "scheduler": "proportional_fair",
-      "mean_total_utility": 27.770952205606513,
-      "mean_total_rate": 264.27884008975946,
-      "mean_jain_fairness": 0.39952857344389525,
+      "mean_total_utility": 27.77095631140195,
+      "mean_total_rate": 264.27884658188896,
+      "mean_jain_fairness": 0.3995288670586093,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
     },
     {
       "scheduler": "optimal",
-      "mean_total_utility": 27.788862426392825,
-      "mean_total_rate": 264.27883853159244,
-      "mean_jain_fairness": 0.3977037591433542,
+      "mean_total_utility": 27.78886438191057,
+      "mean_total_rate": 264.27884971654214,
+      "mean_jain_fairness": 0.39770378026954156,
       "mean_feasible_sessions": 13.15,
       "mean_violated_sessions": 6.85
     },
@@ -65,8 +65,8 @@
   ],
   "price_of_decentralization": {
     "optimal": 0.0,
-    "primal_dual": 0.037553472953293206,
-    "best_response": 0.04345060928232425
+    "primal_dual": 0.03755355739318459,
+    "best_response": 0.04345069354239359
   },
   "coexistence_noise": {
     "classical_load": [
